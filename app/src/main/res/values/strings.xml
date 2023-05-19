@@ -2,4 +2,6 @@
     <string name="app_name">Alex\'s Android Labs</string>
     <string name="hello_message">Hello world!</string>
     <string name="button_message">I\'m a button</string>
+    <string name="hinttext">Write something here</string>
+    <string name="edit_message">I\'m an EditText</string>
 </resources>
