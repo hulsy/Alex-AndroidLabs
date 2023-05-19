@@ -26,13 +26,11 @@ public class MainActivity extends AppCompatActivity {
         variableBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(variableBinding.getRoot());
 
-        variableBinding.textview.setText(model.editString);
         variableBinding.mybutton.setOnClickListener(click -> {
-            model.editString = variableBinding.myedittext.getText().toString();
-            variableBinding.textview.setText("Your edit text has: " + model.editString);
+            model.editString.postValue(variableBinding.myedittext.getText().toString());
+            model.editString.observe(this, s -> {
+                variableBinding.textview.setText("Your edit text has: " + s);
+            });
         });
-
     }
-
-
 }
