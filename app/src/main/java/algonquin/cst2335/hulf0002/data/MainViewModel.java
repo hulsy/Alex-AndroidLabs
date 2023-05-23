@@ -6,4 +6,7 @@ import androidx.lifecycle.ViewModel;
 public class MainViewModel extends ViewModel {
 
     public MutableLiveData<String> editString = new MutableLiveData<>("Hello World");
+
+    public MutableLiveData<Boolean> isCoffeeDrinker =  new MutableLiveData<Boolean>();
+
 }
