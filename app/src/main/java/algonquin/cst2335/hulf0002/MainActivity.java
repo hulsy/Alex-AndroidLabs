@@ -2,6 +2,7 @@ package algonquin.cst2335.hulf0002;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,8 +13,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent nextPage = new Intent(MainActivity.this, SecondActivity.class);
+
+
+        startActivity(nextPage);
+
         setContentView(R.layout.activity_main);
         Log.w(TAG, "In onCreate() - Loading Widgets");
+
+        
     }
     @Override
     protected void onStart() {
