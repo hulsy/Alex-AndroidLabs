@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,6 +41,9 @@ public class SecondActivity extends AppCompatActivity {
         ImageView profileImage = findViewById(R.id.profileImageView);
         Button callButton = findViewById(R.id.callButton);
         EditText phoneNumber = findViewById(R.id.editTextPhone);
+        TextView welcomeMessage = findViewById(R.id.tvWelcome);
+
+        welcomeMessage.setText("Welcome: " + emailAddress);
 
 
         callButton.setOnClickListener(click -> {
