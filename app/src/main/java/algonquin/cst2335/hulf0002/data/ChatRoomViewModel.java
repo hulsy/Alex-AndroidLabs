@@ -6,5 +6,5 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 
 public class ChatRoomViewModel extends ViewModel {
-    public MutableLiveData<ArrayList<String>> messages = new MutableLiveData<>();
+    public ArrayList<ChatMessage> messages = new ArrayList<>();
 }
