@@ -130,8 +130,9 @@ ChatRoom extends AppCompatActivity {
 
             @Override
             public int getItemViewType(int position) {
+                ChatMessage obj =messages.get(position);
 
-                if(position % 2 == 0)
+                if(obj.getSendOrReceive() == 1)
                     return 1;
                 else
                     return 2;
