@@ -3,6 +3,8 @@ package algonquin.cst2335.hulf0002.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +32,7 @@ import algonquin.cst2335.hulf0002.data.ChatMessage;
 import algonquin.cst2335.hulf0002.data.ChatMessageDAO;
 import algonquin.cst2335.hulf0002.data.ChatRoomViewModel;
 import algonquin.cst2335.hulf0002.data.MessageDatabase;
+import algonquin.cst2335.hulf0002.data.MessageDetailsFragment;
 import algonquin.cst2335.hulf0002.databinding.ActivityChatRoomBinding;
 import algonquin.cst2335.hulf0002.databinding.ReceiveMessageBinding;
 import algonquin.cst2335.hulf0002.databinding.SentMessageBinding;
@@ -59,10 +62,23 @@ ChatRoom extends AppCompatActivity {
         myDB = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         myDAO = myDB.cmDAO();
 
-
-
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages;
+
+        chatModel.selectedMessage.observe(this, (newChatMessage) -> {
+
+            if(newChatMessage != null) {
+                FragmentManager fMgr = getSupportFragmentManager();
+
+                FragmentTransaction tx = fMgr.beginTransaction();
+
+                MessageDetailsFragment frag = new MessageDetailsFragment( newChatMessage );
+
+                tx.add(R.id.fragmentLocation, frag);
+                tx.addToBackStack("x");
+                tx.commit();
+            }
+        });
 
         Executor thread = Executors.newSingleThreadExecutor();
         thread.execute(()-> {
@@ -130,7 +146,7 @@ ChatRoom extends AppCompatActivity {
 
             @Override
             public int getItemViewType(int position) {
-                ChatMessage obj =messages.get(position);
+                ChatMessage obj = messages.get(position);
 
                 if(obj.getSendOrReceive() == 1)
                     return 1;
@@ -166,39 +182,48 @@ ChatRoom extends AppCompatActivity {
         public MyRowHolder(@NonNull View itemView){
             super(itemView);
 
+
             itemView.setOnClickListener(click -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(ChatRoom.this);
-                builder.setMessage("Do you want to delete this?")
-                        .setTitle("Question")
-                        .setPositiveButton("Go Ahead", (dlg, which)->{
 
-                            int index = getAdapterPosition();
+                int position = getAdapterPosition();
+                ChatMessage selected = messages.get(position);
 
-                            ChatMessage toDelete = messages.get(index);
+                chatModel.selectedMessage.postValue(selected);
 
-                            Executor thread1 = Executors.newSingleThreadExecutor();
-                            thread1.execute(()-> {
-                                myDAO.deleteMessage(toDelete);
-                                messages.remove(index);
-
-                                runOnUiThread(()->{ myAdapter.notifyDataSetChanged();});
-
-                                Snackbar.make( recyclerView, "Deleted your message", Snackbar.LENGTH_LONG)
-                                        .setAction("UNDO", clk -> {
-                                            Executor myThread = Executors.newSingleThreadExecutor();
-                                            myThread.execute(() -> {
-                                                myDAO.insertMessage(toDelete);
-
-                                                messages.add(index, toDelete);
-                                                runOnUiThread(() -> myAdapter.notifyDataSetChanged());
-                                            });
-                                        })
-                                        .show();
-                            });
-                        })
-                        .setNegativeButton("No", (dl, wh) ->{})
-                        .create().show();
             });
+//                AlertDialog.Builder builder = new AlertDialog.Builder(ChatRoom.this);
+//                builder.setMessage("Do you want to delete this?")
+//                        .setTitle("Question")
+//                        .setPositiveButton("Go Ahead", (dlg, which)->{
+//
+//                            int index = getAdapterPosition();
+//
+//                            ChatMessage toDelete = messages.get(index);
+//
+//                            Executor thread1 = Executors.newSingleThreadExecutor();
+//                            thread1.execute(()-> {
+//                                myDAO.deleteMessage(toDelete);
+//                                messages.remove(index);
+//
+//                                runOnUiThread(()->{ myAdapter.notifyDataSetChanged();});
+//
+//                                Snackbar.make( recyclerView, "Deleted your message", Snackbar.LENGTH_LONG)
+//                                        .setAction("UNDO", clk -> {
+//                                            Executor myThread = Executors.newSingleThreadExecutor();
+//                                            myThread.execute(() -> {
+//                                                myDAO.insertMessage(toDelete);
+//
+//                                                messages.add(index, toDelete);
+//                                                runOnUiThread(() -> myAdapter.notifyDataSetChanged());
+//                                            });
+//                                        })
+//                                        .show();
+//                            });
+//                        })
+//                        .setNegativeButton("No", (dl, wh) ->{})
+//                        .create().show();
+//            });
+
             messageText = itemView.findViewById(R.id.message);
             timeText = itemView.findViewById(R.id.time);
         }
