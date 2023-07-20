@@ -3,6 +3,7 @@ package algonquin.cst2335.hulf0002.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,11 +13,14 @@ import androidx.room.Room;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -49,8 +53,9 @@ ChatRoom extends AppCompatActivity {
     Button sendButton;
     Button receiveButton;
     RecyclerView recyclerView;
-
     RecyclerView.Adapter myAdapter;
+
+    Toolbar myToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +64,16 @@ ChatRoom extends AppCompatActivity {
         ActivityChatRoomBinding binding = ActivityChatRoomBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        myToolbar = binding.myToolbar;
+        setSupportActionBar(myToolbar);
+
         myDB = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         myDAO = myDB.cmDAO();
 
         chatModel = new ViewModelProvider(this).get(ChatRoomViewModel.class);
         messages = chatModel.messages;
+
+
 
         chatModel.selectedMessage.observe(this, (newChatMessage) -> {
 
@@ -173,6 +183,47 @@ ChatRoom extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch(item.getItemId()){
+
+            case R.id.item1:
+                System.out.println("hello");
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChatRoom.this);
+                builder.setMessage("Do you want to delete the messages?")
+                        .setTitle("Question")
+                        .setPositiveButton("Go Ahead", (dlg, which)->{
+
+
+                            Executor thread1 = Executors.newSingleThreadExecutor();
+                            thread1.execute(()-> {
+                                myDAO.deleteAllMessages();
+                                messages.clear();
+
+                                runOnUiThread(()->{ myAdapter.notifyDataSetChanged();});
+                            });
+                        })
+                        .setNegativeButton("No", (dl, wh) ->{})
+                        .create().show();
+
+                break;
+            case R.id.item2:
+                Toast.makeText(this, "Version 1.0, created by Alex Hulford", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return true;
+    }
+
     class MyRowHolder extends RecyclerView.ViewHolder {
 
         TextView messageText;
@@ -191,38 +242,6 @@ ChatRoom extends AppCompatActivity {
                 chatModel.selectedMessage.postValue(selected);
 
             });
-//                AlertDialog.Builder builder = new AlertDialog.Builder(ChatRoom.this);
-//                builder.setMessage("Do you want to delete this?")
-//                        .setTitle("Question")
-//                        .setPositiveButton("Go Ahead", (dlg, which)->{
-//
-//                            int index = getAdapterPosition();
-//
-//                            ChatMessage toDelete = messages.get(index);
-//
-//                            Executor thread1 = Executors.newSingleThreadExecutor();
-//                            thread1.execute(()-> {
-//                                myDAO.deleteMessage(toDelete);
-//                                messages.remove(index);
-//
-//                                runOnUiThread(()->{ myAdapter.notifyDataSetChanged();});
-//
-//                                Snackbar.make( recyclerView, "Deleted your message", Snackbar.LENGTH_LONG)
-//                                        .setAction("UNDO", clk -> {
-//                                            Executor myThread = Executors.newSingleThreadExecutor();
-//                                            myThread.execute(() -> {
-//                                                myDAO.insertMessage(toDelete);
-//
-//                                                messages.add(index, toDelete);
-//                                                runOnUiThread(() -> myAdapter.notifyDataSetChanged());
-//                                            });
-//                                        })
-//                                        .show();
-//                            });
-//                        })
-//                        .setNegativeButton("No", (dl, wh) ->{})
-//                        .create().show();
-//            });
 
             messageText = itemView.findViewById(R.id.message);
             timeText = itemView.findViewById(R.id.time);
